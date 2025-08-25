@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados da Avaliação Diagnóstica - 9º Ano</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        .selector-container {
+            margin-bottom: 40px;
+        }
+        label {
+            font-size: 1.2em;
+            color: #34495e;
+            margin-right: 10px;
+        }
+        #student-selector {
+            padding: 10px 15px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #bdc3c7;
+            min-width: 300px;
+            cursor: pointer;
+        }
+        .charts-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .guidance-section {
+            margin-top: 50px;
+            text-align: left;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+        }
+        .guidance-section h2 {
+            text-align: center;
+        }
+        .guidance-section ul {
+            list-style-type: '✅';
+            padding-left: 20px;
+        }
+        .guidance-section li {
+            margin-bottom: 15px;
+            padding-left: 10px;
+            line-height: 1.6;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Apresentação dos Resultados da 1ª Avaliação Diagnóstica</h1>
+        <p class="subtitle">9º Ano - Colégio Estadual Sebastião Paraná</p>
+        
+        <div class="selector-container">
+            <label for="student-selector">Selecione o(a) aluno(a) para ver o desempenho:</label>
+            <select id="student-selector">
+                <option value="">-- Escolha um nome --</option>
+            </select>
+        </div>
+
+        <div id="results-dashboard" class="hidden">
+            <h2 id="student-name-title"></h2>
+            <div class="charts-section">
+                <div class="chart-container">
+                    <h3>Desempenho Geral</h3>
+                    <canvas id="geralChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Desempenho por Habilidade</h3>
+                    <canvas id="habilidadesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="guidance-section">
+            <h2>Como os pais podem ajudar a melhorar o desempenho?</h2>
+            <p>A parceria entre família e escola é a chave para o sucesso do aluno. Aqui estão algumas sugestões práticas para o dia a dia:</p>
+            <ul>
+                <li><strong>Crie uma Rotina de Estudos:</strong> Defina um horário e um local fixo, silencioso e organizado para o estudo diário. Consistência é mais importante que quantidade.</li>
+                <li><strong>Converse sobre a Escola:</strong> Pergunte o que aprenderam de novo, quais foram os desafios e as conquistas do dia. Mostre interesse genuíno pelo aprendizado.</li>
+                <li><strong>Incentive a Leitura:</strong> A leitura melhora o vocabulário, a interpretação e o raciocínio em todas as matérias. Incentive a leitura de livros, notícias e até de gibis.</li>
+                <li><strong>Use a Matemática no Cotidiano:</strong> Peça ajuda com as compras do supermercado, no cálculo de uma receita ou no planejamento de uma viagem. Mostre que a matemática é útil e está em todo lugar.</li>
+                <li><strong>Valorize o Esforço, Não Apenas a Nota:</strong> Elogie a dedicação e a persistência, mesmo que o resultado ainda não seja o esperado. Isso constrói resiliência e confiança.</li>
+                <li><strong>Mantenha o Contato com a Escola:</strong> Participe das reuniões e mantenha um diálogo aberto conosco. Juntos, podemos encontrar as melhores estratégias para cada aluno.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // --- DADOS DOS ALUNOS (Processados dos arquivos CSV) ---
+        const studentData = {
+            "AGATHA VITORIA PEREIRA DOS SANTOS": {
+                "Matemática": { "geral": 21, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":100,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":50,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 52, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":0,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":0,"H14":100,"H15":0 } }
+            },
+            "ANA JULIA CARDOSO DE LIMA": {
+                "Matemática": { "geral": 25, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":100,"H15":0,"H16":0,"H17":0,"H18":0,"H19":100,"H20":0 } },
+                "Português": { "geral": 64, "habilidades": { "H01":100,"H02":0,"H03":50,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":0,"H11":50,"H12":0,"H13":0,"H14":50,"H15":100 } }
+            },
+            "ANA LUIZA ZANETTIN": {
+                "Matemática": { "geral": 32, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":100,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":100,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } }
+            },
+            "ANDRE FELIPE DE SOUZA FERREIRA": {
+                "Matemática": { "geral": 43, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":100,"H09":100,"H10":100,"H11":100,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":50,"H19":0,"H20":0 } },
+                "Português": { "geral": 92, "habilidades": { "H01":100,"H02":100,"H03":100,"H04":50,"H05":100,"H06":100,"H07":100,"H08":100,"H09":100,"H10":100,"H11":50,"H12":50,"H13":100,"H14":50,"H15":100 } }
+            },
+            "ANDRIELI CARINI DE OLIVEIRA": {
+                "Matemática": { "geral": 11, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 64, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":0,"H14":50,"H15":100 } }
+            },
+            "ARTHUR PADILHA": {
+                "Matemática": { "geral": 7, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 32, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":0,"H06":0,"H07":100,"H08":100,"H09":50,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":100 } }
+            },
+            "CARLOS EDUARDO LOVATEL DA SILVA": {
+                "Matemática": { "geral": 14, "habilidades": { "H01":0,"H02":100,"H03":0,"H04":100,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 33, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":0,"H05":100,"H06":0,"H07":67,"H08":100,"H09":50,"H10":50,"H11":50,"H12":0,"H13":0,"H14":0,"H15":0 } }
+            },
+            "EDUARDA VITORIA DE CAMPOS": {
+                "Matemática": { "geral": 7, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":50,"H19":0,"H20":0 } }
+            },
+            "GABRIEL HENRIQUE ALVES DE OLIVEIRA": {
+                "Matemática": { "geral": 21, "habilidades": { "H01":0,"H02":100,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":100,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":100,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "GEOVANA EDUARDA DA SILVA": {
+                "Matemática": { "geral": 11, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":100,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } }
+            },
+            "GUILHERME TELLES DE OLIVEIRA": {
+                "Matemática": { "geral": 14, "habilidades": { "H01":0,"H02":100,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 32, "habilidades": { "H01":100,"H02":0,"H03":50,"H04":0,"H05":100,"H06":0,"H07":100,"H08":100,"H09":50,"H10":0,"H11":50,"H12":0,"H13":0,"H14":0,"H15":100 } }
+            },
+            "ISADORA APARECIDA GUEDES RODRIGUES": {
+                "Matemática": { "geral": 25, "habilidades": { "H01":0,"H02":100,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } }
+            },
+            "JENIFER APARECIDA SAMPIETRO": {
+                "Matemática": { "geral": 25, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":100,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } }
+            },
+            "KAUANE VITORIA DE LIMA": {
+                "Matemática": { "geral": 14, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } }
+            },
+            "LUAN GABRIEL ALVES": {
+                "Matemática": { "geral": 0, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 25, "habilidades": { "H01":100,"H02":0,"H03":50,"H04":0,"H05":100,"H06":0,"H07":100,"H08":50,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":100 } }
+            },
+            "LUIZ FELIPE DA ROSA": {
+                "Matemática": { "geral": 25, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 71, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":100,"H11":50,"H12":0,"H13":100,"H14":0,"H15":100 } }
+            },
+            "MARCOS ANTONIO PEREIRA": {
+                "Matemática": { "geral": 7, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":100,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 43, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":0,"H05":100,"H06":0,"H07":100,"H08":50,"H09":100,"H10":50,"H11":50,"H12":0,"H13":0,"H14":0,"H15":0 } }
+            },
+            "MATEUS FELIPE PEREIRA DE SOUZA": {
+                "Matemática": { "geral": 0, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 25, "habilidades": { "H01":100,"H02":0,"H03":50,"H04":0,"H05":100,"H06":0,"H07":100,"H08":100,"H09":50,"H10":0,"H11":50,"H12":0,"H13":0,"H14":0,"H15":100 } }
+            },
+            "NICOLE SAMPIETRO": {
+                "Matemática": { "geral": 43, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":100,"H05":50,"H06":0,"H07":0,"H08":100,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":50,"H19":0,"H20":0 } },
+                "Português": { "geral": 88, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":100,"H07":100,"H08":100,"H09":100,"H10":100,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "PEDRO HENRIQUE MORAES": {
+                "Matemática": { "geral": 14, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "YASMIN VITORIA ALVES DE OLIVEIRA": {
+                "Matemática": { "geral": 43, "habilidades": { "H01":100,"H02":100,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":100,"H11":0,"H12":0,"H13":0,"H14":100,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } }
+            },
+            "ALICE VITORIA MORAES DE LIMA": {
+                "Matemática": { "geral": 32, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":50,"H18":0,"H19":100,"H20":0 } },
+                "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "ANA CAROLINE RIBEIRO DE LARA": {
+                "Matemática": { "geral": 11, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 68, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":50,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "ANNA JULIA ALFLEN DE OLIVEIRA": {
+                "Matemática": { "geral": 36, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":100,"H05":50,"H06":0,"H07":0,"H08":100,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 83, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":100,"H07":100,"H08":100,"H09":100,"H10":100,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "BRUNO MIGUEL PEREIRA": {
+                "Matemática": { "geral": 21, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":100,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":100,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 79, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":100,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "CARLOS DANIEL BARBOSA DE LIMA": {
+                "Matemática": { "geral": 21, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "CAROLINE VITORIA DE OLIVEIRA BOENO": {
+                "Matemática": { "geral": 18, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "CLEITON GABRIEL ALVES DOS SANTOS": {
+                "Matemática": { "geral": 18, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 54, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":0,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":0,"H14":50,"H15":0 } }
+            },
+            "EMILLY VITORIA ALVES DE OLIVEIRA": {
+                "Matemática": { "geral": 32, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "EMILY EDUARDA FERREIRA VARELA": {
+                "Matemática": { "geral": 18, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "EMANUELLY VITORIA DOS SANTOS": {
+                "Matemática": { "geral": 18, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 54, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":0,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":0,"H11":50,"H12":0,"H13":0,"H14":50,"H15":100 } }
+            },
+            "ESTER RIBEIRO DE LIMA": {
+                "Matemática": { "geral": 11, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "EZEQUIEL TAVARES": {
+                "Matemática": { "geral": 0, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 18, "habilidades": { "H01":100,"H02":0,"H03":50,"H04":0,"H05":100,"H06":0,"H07":100,"H08":100,"H09":50,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0 } }
+            },
+            "FERNANDA APARECIDA ALVES DA LUZ": {
+                "Matemática": { "geral": 39, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":100,"H05":50,"H06":0,"H07":0,"H08":100,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":100,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 79, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":100,"H11":50,"H12":0,"H13":100,"H14":100,"H15":100 } }
+            },
+            "GABRIEL DOS SANTOS DE ANDRADE": {
+                "Matemática": { "geral": 18, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 71, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":50,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "GABRIEL FELIPE DE SOUZA PEREIRA": {
+                "Matemática": { "geral": 7, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 18, "habilidades": { "H01":100,"H02":0,"H03":50,"H04":0,"H05":0,"H06":0,"H07":100,"H08":50,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0 } }
+            },
+            "GABRIELI APARECIDA DE LIMA GOLEMBA": {
+                "Matemática": { "geral": 39, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":100,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":100,"H20":0 } }
+            },
+            "HENRIQUE GABRIEL PEREIRA": {
+                "Matemática": { "geral": 39, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":50,"H18":0,"H19":100,"H20":0 } }
+            },
+            "KAUA PIETRO ALVES DE OLIVEIRA": {
+                "Matemática": { "geral": 4, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "KAUAN FELIPE ALVES DE OLIVEIRA": {
+                "Matemática": { "geral": 21, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 64, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":50,"H09":100,"H10":50,"H11":50,"H12":0,"H13":0,"H14":50,"H15":100 } }
+            },
+            "LUAN GABRIEL VIEIRA": {
+                "Matemática": { "geral": 0, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 18, "habilidades": { "H01":100,"H02":0,"H03":50,"H04":0,"H05":100,"H06":0,"H07":100,"H08":100,"H09":50,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0 } }
+            },
+            "MARIA ALICE VIEIRA": {
+                "Matemática": { "geral": 11, "habilidades": { "H01":0,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "MARIA LUIZA LOURENCO DE AGUIAR": {
+                "Matemática": { "geral": 32, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":100,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":100,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            },
+            "NICOLE VITORIA FERREIRA DOS SANTOS": {
+                "Matemática": { "geral": 36, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":50,"H06":0,"H07":0,"H08":0,"H09":100,"H10":0,"H11":0,"H12":0,"H13":0,"H14":100,"H15":0,"H16":0,"H17":50,"H18":0,"H19":0,"H20":0 } }
+            },
+            "RAFAEL AUGUSTO BUENO": {
+                "Matemática": { "geral": 7, "habilidades": { "H01":100,"H02":0,"H03":0,"H04":0,"H05":0,"H06":0,"H07":0,"H08":0,"H09":0,"H10":0,"H11":0,"H12":0,"H13":0,"H14":0,"H15":0,"H16":0,"H17":0,"H18":0,"H19":0,"H20":0 } },
+                "Português": { "geral": 58, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":0,"H11":0,"H12":0,"H13":100,"H14":0,"H15":100 } }
+            },
+            "THIFFANI GABRIELI RIBEIRO BUENO": {
+                 "Português": { "geral": 75, "habilidades": { "H01":100,"H02":0,"H03":100,"H04":50,"H05":100,"H06":0,"H07":100,"H08":100,"H09":100,"H10":50,"H11":50,"H12":0,"H13":100,"H14":50,"H15":100 } }
+            }
+        };
+
+        // --- LÓGICA DA PÁGINA ---
+
+        const selector = document.getElementById('student-selector');
+        const dashboard = document.getElementById('results-dashboard');
+        const studentNameTitle = document.getElementById('student-name-title');
+
+        let geralChartInstance = null;
+        let habilidadesChartInstance = null;
+
+        // Preenche o dropdown com os nomes dos alunos
+        function populateSelector() {
+            const studentNames = Object.keys(studentData).sort();
+            studentNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                selector.appendChild(option);
+            });
+        }
+
+        // Atualiza os gráficos quando um aluno é selecionado
+        function updateCharts(studentName) {
+            if (!studentName) {
+                dashboard.classList.add('hidden');
+                return;
+            }
+
+            const data = studentData[studentName];
+            studentNameTitle.textContent = `Desempenho de: ${studentName}`;
+            dashboard.classList.remove('hidden');
+
+            // --- Gráfico de Desempenho Geral ---
+            const geralCtx = document.getElementById('geralChart').getContext('2d');
+            const disciplinas = Object.keys(data);
+            const scores = disciplinas.map(d => data[d].geral);
+            
+            if (geralChartInstance) {
+                geralChartInstance.destroy();
+            }
+            geralChartInstance = new Chart(geralCtx, {
+                type: 'bar',
+                data: {
+                    labels: disciplinas,
+                    datasets: [{
+                        label: '% de Acerto Geral',
+                        data: scores,
+                        backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // --- Gráfico de Habilidades (mostra a primeira disciplina por padrão) ---
+            updateHabilidadesChart(disciplinas[0], data);
+        }
+        
+        // Função para atualizar o gráfico de habilidades
+        function updateHabilidadesChart(disciplina, studentData) {
+            const habilidadesCtx = document.getElementById('habilidadesChart').getContext('2d');
+            const habilidadesData = studentData[disciplina].habilidades;
+            const labels = Object.keys(habilidadesData);
+            const scores = Object.values(habilidadesData);
+
+            if (habilidadesChartInstance) {
+                habilidadesChartInstance.destroy();
+            }
+
+            habilidadesChartInstance = new Chart(habilidadesCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `% de Acerto em ${disciplina}`,
+                        data: scores,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                       title: {
+                           display: true,
+                           text: `Detalhes de ${disciplina}`
+                       }
+                    }
+                }
+            });
+        }
+
+
+        // Event Listener para o dropdown
+        selector.addEventListener('change', (event) => {
+            updateCharts(event.target.value);
+        });
+
+        // Event Listener para o gráfico geral (permite clicar para ver detalhes)
+        document.getElementById('geralChart').onclick = (event) => {
+             const activePoints = geralChartInstance.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+             if (activePoints.length > 0) {
+                 const selectedIndex = activePoints[0].index;
+                 const disciplina = geralChartInstance.data.labels[selectedIndex];
+                 const studentName = selector.value;
+                 if (studentName && studentData[studentName][disciplina]) {
+                     updateHabilidadesChart(disciplina, studentData[studentName]);
+                 }
+             }
+        };
+
+
+        // Inicia a página
+        populateSelector();
+
+    </script>
+</body>
+</html>
